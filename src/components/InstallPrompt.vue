@@ -88,12 +88,12 @@ const dismissPrompt = () => {
         leave-active-class="transition transform duration-200 ease-in" leave-from-class="translate-y-0 opacity-100"
         leave-to-class="translate-y-full opacity-0">
         <div v-if="showPrompt && !isStandalone"
-            class="fixed bottom-4 left-4 right-4 max-w-md mx-auto bg-slate-800/95 border border-slate-700/80 backdrop-blur-md rounded-2xl p-4 shadow-2xl z-50 text-slate-100">
+            class="fixed bottom-4 left-4 right-4 max-w-md mx-auto modal-bg border header-border backdrop-blur-md rounded-2xl p-4 shadow-2xl z-50">
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <!-- App Icon Placeholder / Logo -->
+                    <!-- App Icon / Logo -->
                     <div
-                        class="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-md shadow-indigo-950/40">
+                        class="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/20">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6z" />
@@ -102,14 +102,14 @@ const dismissPrompt = () => {
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-sm text-slate-100">安裝記分板 App</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">新增至主畫面，享全螢幕與離線記分</p>
+                        <h3 class="font-semibold text-sm text-main">安裝記分板 App</h3>
+                        <p class="text-xs text-sub mt-0.5">新增至主畫面，享全螢幕與離線記分</p>
                     </div>
                 </div>
 
                 <!-- 關閉按鈕 -->
                 <button type="button" @click="dismissPrompt"
-                    class="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition-colors">
+                    class="text-sub hover:text-main p-1 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
@@ -120,7 +120,7 @@ const dismissPrompt = () => {
             <!-- Android / Chrome: 一鍵安裝按鈕 -->
             <div v-if="deferredPrompt" class="mt-3.5">
                 <button type="button" @click="handleInstallClick"
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 min-h-[40px]">
+                    class="w-full btn-primary text-white font-medium text-xs py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 min-h-[40px]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -130,14 +130,14 @@ const dismissPrompt = () => {
             </div>
 
             <!-- iOS Safari: 圖文引導說明 -->
-            <div v-else-if="isIOS" class="mt-3 pt-3 border-t border-slate-700/60 text-xs text-slate-300 space-y-1.5">
+            <div v-else-if="isIOS" class="mt-3 pt-3 border-t header-border text-xs text-sub space-y-1.5">
                 <div class="flex items-center gap-2">
                     <span
-                        class="bg-slate-700 text-slate-300 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
-                    <span>點擊下方選單列的 <strong>「分享」</strong> 按鈕</span>
+                        class="badge-step w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                    <span>點擊下方選單列的 <strong class="text-main">「分享」</strong> 按鈕</span>
                     <!-- iOS Share Icon -->
-                    <svg class="w-4 h-4 text-indigo-400 shrink-0 inline" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0 inline" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8.25 9.75h4.875a2.625 2.625 0 0 1 2.625 2.625v6.75a2.625 2.625 0 0 1-2.625 2.625H8.25a2.625 2.625 0 0 1-2.625-2.625v-6.75A2.625 2.625 0 0 1 8.25 9.75Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -146,10 +146,47 @@ const dismissPrompt = () => {
                 </div>
                 <div class="flex items-center gap-2">
                     <span
-                        class="bg-slate-700 text-slate-300 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
-                    <span>滑動選擇 <strong>「加入主畫面」</strong> 即可像 App 般使用</span>
+                        class="badge-step w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                    <span>滑動選擇 <strong class="text-main">「加入主畫面」</strong> 即可像 App 般使用</span>
                 </div>
             </div>
         </div>
     </Transition>
 </template>
+
+<style scoped>
+/* 主題文字色彩 */
+.text-main {
+    color: var(--text-h);
+}
+
+.text-sub {
+    color: var(--text);
+}
+
+/* 邊框顏色適應 */
+.header-border {
+    border-color: var(--border);
+}
+
+/* 浮動提示框背景，帶高質感透明模糊效果 */
+.modal-bg {
+    background-color: var(--bg);
+}
+
+/* 主要操作按鈕樣式 */
+.btn-primary {
+    background-color: var(--accent);
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+/* 步驟序號 Badge 適應 */
+.badge-step {
+    background-color: var(--code-bg);
+    color: var(--text-h);
+    border: 1px solid var(--border);
+}
+</style>

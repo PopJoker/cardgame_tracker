@@ -85,67 +85,140 @@ const handleConfirm = (startImmediately: boolean) => {
 </script>
 
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
-            <header class="border-b border-slate-800 pb-3">
-                <h2 class="text-lg font-semibold text-slate-100">選擇要載入的對局</h2>
-                <p class="text-xs text-slate-400 mt-0.5">選擇一場備份中的對局恢復資料：</p>
-            </header>
+    <!-- 主彈窗遮罩 -->
+    <Transition name="modal-fade" appear>
+        <div v-if="isOpen"
+            class="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            @click.self="emit('close')">
 
-            <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                <!-- 選項：JSON 中的進行中對局 -->
-                <label v-if="hasUnfinishedGame"
-                    :class="['block border p-3 rounded-xl cursor-pointer transition-all', selectedSessionId === 'current_active' ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-800/50 border-slate-700/60 hover:bg-slate-800']">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <input type="radio" value="current_active" v-model="selectedSessionId"
-                                class="text-indigo-600 focus:ring-0" />
-                            <span class="text-sm font-medium text-amber-400">⚡ 未完成的對局 (進行中)</span>
-                        </div>
-                        <span class="text-xs text-slate-400 font-mono">{{ backupData?.historyStack?.length }} 回合</span>
+            <!-- Modal 主體容器：套用 modal-bg 變數與主題適應樣式 -->
+            <div
+                class="modal-content modal-bg border header-border w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden relative transition-colors duration-300">
+
+                <!-- Modal Header -->
+                <header class="p-4 border-b header-border flex justify-between items-center card-bg shrink-0">
+                    <div>
+                        <h2 class="text-base font-bold text-main">選擇要載入的對局</h2>
+                        <p class="text-xs text-sub mt-0.5">選擇一場備份中的對局恢復資料：</p>
                     </div>
-                </label>
-
-                <!-- 選項：歷史 Sessions -->
-                <label v-for="(session, idx) in sessions" :key="session.id || idx"
-                    :class="['block border p-3 rounded-xl cursor-pointer transition-all', selectedSessionId === session.id ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-800/50 border-slate-700/60 hover:bg-slate-800']">
-                    <div class="flex items-center justify-between mb-1.5">
-                        <div class="flex items-center gap-2">
-                            <input type="radio" :value="session.id" v-model="selectedSessionId"
-                                class="text-indigo-600 focus:ring-0" />
-                            <span class="text-sm font-medium text-slate-200">歷史對局 #{{ sessions.length - idx }}</span>
-                        </div>
-                        <span class="text-xs text-slate-400 font-mono">{{ formatDate(session.startTime) }}</span>
-                    </div>
-                    <!-- 參與玩家列表 preview -->
-                    <div class="flex flex-wrap gap-1 text-xs text-slate-400 pl-6">
-                        <span v-for="pId in session.playerIds" :key="pId"
-                            class="bg-slate-700/50 px-1.5 py-0.5 rounded text-[11px] text-slate-300">
-                            {{ getPlayerName(pId) }}
-                        </span>
-                    </div>
-                </label>
-
-                <div v-if="!hasUnfinishedGame && sessions.length === 0" class="text-center py-6 text-xs text-slate-500">
-                    此備份檔內沒有可供載入的戰局紀錄。
-                </div>
-            </div>
-
-            <!-- Footer 區塊 -->
-            <footer class="space-y-2 pt-2 border-t border-slate-800">
-                <!-- 載入動作區域 -->
-                <div v-if="selectedSessionId" class="grid grid-cols-2 gap-2">
                     <button type="button" @click="emit('close')"
-                        class="w-full bg-transparent hover:bg-slate-800/50 text-slate-400 text-xs py-1.5 rounded-lg transition-all">
-                        僅匯入玩家名單 (不載入對局)
+                        class="text-sub hover:text-main p-2 text-xl min-w-[44px] min-h-[44px] rounded-lg transition-colors flex items-center justify-center">
+                        ✕
                     </button>
-                    <button type="button" @click="handleConfirm(true)"
-                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs py-2.5 rounded-xl transition-all shadow-md active:scale-95">
-                        載入並繼續對局
-                    </button>
+                </header>
+
+                <!-- Sessions List (Scrollable) -->
+                <div class="p-4 overflow-y-auto space-y-2 flex-1 text-xs">
+                    <!-- 選項：JSON 中的進行中對局 -->
+                    <label v-if="hasUnfinishedGame" :class="[
+                        'block border p-3.5 rounded-xl cursor-pointer transition-all',
+                        selectedSessionId === 'current_active'
+                            ? 'bg-indigo-500/10 border-indigo-500 shadow-sm'
+                            : 'card-bg border-header-border hover:opacity-80'
+                    ]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" value="current_active" v-model="selectedSessionId"
+                                    class="text-indigo-600 focus:ring-0" />
+                                <span class="text-xs font-semibold text-amber-500">⚡ 未完成的對局 (進行中)</span>
+                            </div>
+                            <span class="text-[11px] text-sub font-mono">{{ backupData?.historyStack?.length }}
+                                回合</span>
+                        </div>
+                    </label>
+
+                    <!-- 選項：歷史 Sessions -->
+                    <label v-for="(session, idx) in sessions" :key="session.id || idx" :class="[
+                        'block border p-3.5 rounded-xl cursor-pointer transition-all',
+                        selectedSessionId === session.id
+                            ? 'bg-indigo-500/10 border-indigo-500 shadow-sm'
+                            : 'card-bg border-header-border hover:opacity-80'
+                    ]">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" :value="session.id" v-model="selectedSessionId"
+                                    class="text-indigo-600 focus:ring-0" />
+                                <span class="text-xs font-semibold text-main">歷史對局 #{{ sessions.length - idx }}</span>
+                            </div>
+                            <span class="text-[11px] text-sub font-mono">{{ formatDate(session.startTime) }}</span>
+                        </div>
+
+                        <!-- 參與玩家列表 preview -->
+                        <div class="flex flex-wrap gap-1 text-xs text-sub pl-6">
+                            <span v-for="pId in session.playerIds" :key="pId"
+                                class="modal-bg border header-border px-2 py-0.5 rounded text-[11px] text-sub">
+                                {{ getPlayerName(pId) }}
+                            </span>
+                        </div>
+                    </label>
+
+                    <div v-if="!hasUnfinishedGame && sessions.length === 0" class="text-center py-8 text-xs text-sub">
+                        此備份檔內沒有可供載入的戰局紀錄。
+                    </div>
                 </div>
 
-            </footer>
+                <!-- Modal Footer -->
+                <footer class="p-4 border-t header-border card-bg shrink-0 space-y-2">
+                    <div v-if="selectedSessionId" class="grid grid-cols-2 gap-2">
+                        <button type="button" @click="emit('close')"
+                            class="w-full card-bg hover:opacity-80 text-sub font-medium text-xs py-3 rounded-xl border header-border transition-all min-h-[44px]">
+                            僅匯入玩家名單
+                        </button>
+                        <button type="button" @click="handleConfirm(true)"
+                            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-3 rounded-xl transition-all shadow-md active:scale-95 min-h-[44px]">
+                            載入並繼續對局
+                        </button>
+                    </div>
+                </footer>
+            </div>
         </div>
-    </div>
+    </Transition>
 </template>
+
+<style scoped>
+/* 1. 彈窗主體與背景：跟隨全域深淺色背景 (var(--bg)) */
+.modal-bg {
+    background-color: var(--bg);
+}
+
+/* 2. 內部卡片、Header、Footer 背景 (var(--code-bg)) */
+.card-bg {
+    background-color: var(--code-bg);
+}
+
+/* 3. 主要與次要文字顏色適應 */
+.text-main {
+    color: var(--text-h);
+}
+
+.text-sub {
+    color: var(--text);
+}
+
+/* 4. 邊框顏色適應 */
+.header-border {
+    border-color: var(--border);
+}
+
+/* 彈窗淡入淡出與縮放動畫 */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+    transition: opacity 0.25s ease;
+}
+
+.modal-fade-enter-active .modal-content,
+.modal-fade-leave-active .modal-content {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+    opacity: 0;
+}
+
+.modal-fade-enter-from .modal-content,
+.modal-fade-leave-to .modal-content {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+}
+</style>

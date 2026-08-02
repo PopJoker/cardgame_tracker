@@ -31,7 +31,7 @@ const activePlayers = computed(() => {
 // 當焦點勝者
 const winnerId = ref<string>('')
 
-// 當前回合輸家的扣點數（儲存非負整數，UI與計算時再轉為負數）
+// 當開啟回合輸家的扣點數（儲存非負整數，UI與計算時再轉為負數）
 const roundLoserPoints = ref<Record<string, number>>({})
 
 // 初始化回合點數
@@ -132,18 +132,19 @@ onMounted(() => {
 <template>
     <div class="max-w-md mx-auto space-y-5 pb-12">
         <!-- Top Bar -->
-        <header class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <header class="flex items-center justify-between border-b header-border pb-3">
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">Round {{
-                        gameStore.historyStack.length + 1 }}</span>
+                    <span class="text-xs font-mono uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Round
+                        {{
+                            gameStore.historyStack.length + 1 }}</span>
 
                     <!-- Wake Lock Status Indicator -->
                     <button v-if="isWakeLockSupported" type="button" @click="toggleWakeLock" :class="[
                         'text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1 transition-all border',
                         isWakeLockActive
-                            ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                            : 'bg-slate-800 text-slate-500 border-slate-700'
+                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-300 border-amber-500/30'
+                            : 'btn-icon-bg text-sub header-border'
                     ]" title="點擊切換螢幕常亮">
                         <!-- Sun Icon -->
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,16 +154,16 @@ onMounted(() => {
                         <span>{{ isWakeLockActive ? '常亮中' : '常亮已關' }}</span>
                     </button>
                 </div>
-                <h2 class="text-lg font-semibold text-slate-100">回合記分板</h2>
+                <h2 class="text-lg font-semibold text-main">回合記分板</h2>
             </div>
 
             <div class="flex items-center gap-1.5">
                 <!-- 歷史紀錄按鈕 -->
                 <button type="button" @click="isHistoryOpen = true"
-                    class="bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border border-slate-700/80 p-2 rounded-xl text-xs font-medium min-h-[40px] min-w-[40px] flex items-center justify-center active:scale-95 transition-all"
+                    class="btn-icon-bg text-main border header-border p-2 rounded-xl text-xs font-medium min-h-[40px] min-w-[40px] flex items-center justify-center active:scale-95 transition-all"
                     title="對局歷程與備份">
                     <!-- Clock / History Icon -->
-                    <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-sub" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
@@ -170,8 +171,8 @@ onMounted(() => {
 
                 <!-- Undo Button -->
                 <button type="button" @click="handleUndo" :disabled="gameStore.historyStack.length === 0"
-                    class="bg-slate-800/80 hover:bg-slate-700/80 disabled:opacity-40 text-slate-300 border border-slate-700/80 px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 min-h-[40px] active:scale-95 transition-all">
-                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="btn-icon-bg disabled:opacity-40 text-main border header-border px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 min-h-[40px] active:scale-95 transition-all">
+                    <svg class="w-4 h-4 text-sub" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
                     </svg>
@@ -180,7 +181,7 @@ onMounted(() => {
 
                 <!-- Exit Button -->
                 <button type="button" @click="handleExitGame"
-                    class="bg-slate-800/80 hover:bg-slate-700/80 text-rose-400 border border-slate-700/80 px-3 py-2 rounded-xl text-xs font-medium min-h-[40px] active:scale-95 transition-all">
+                    class="btn-icon-bg text-rose-500 dark:text-rose-400 border header-border px-3 py-2 rounded-xl text-xs font-medium min-h-[40px] active:scale-95 transition-all">
                     結束
                 </button>
             </div>
@@ -191,8 +192,8 @@ onMounted(() => {
             <div v-for="player in activePlayers" :key="player.id" :class="[
                 'rounded-2xl p-4 transition-all border',
                 winnerId === player.id
-                    ? 'bg-indigo-950/40 border-indigo-500/80 shadow-lg shadow-indigo-950/30'
-                    : 'bg-slate-800/70 border-slate-700/60'
+                    ? 'card-winner border-indigo-500/80 shadow-lg shadow-indigo-500/10'
+                    : 'card-bg header-border'
             ]">
                 <!-- Row 1: 玩家狀態與總分 -->
                 <div class="flex items-center justify-between gap-2 mb-3">
@@ -201,7 +202,7 @@ onMounted(() => {
                             'w-6 h-6 rounded-full border flex items-center justify-center transition-all min-h-[32px] min-w-[32px]',
                             winnerId === player.id
                                 ? 'bg-indigo-600 border-indigo-400 text-white'
-                                : 'border-slate-600 bg-slate-900/50 hover:border-slate-500'
+                                : 'radio-inactive'
                         ]">
                             <svg v-if="winnerId === player.id" class="w-4 h-4" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -209,16 +210,16 @@ onMounted(() => {
                                     d="m4.5 12.75 6 6 9-13.5" />
                             </svg>
                         </button>
-                        <span class="font-semibold text-slate-100 text-base">{{ player.name }}</span>
+                        <span class="font-semibold text-main text-base">{{ player.name }}</span>
                         <span v-if="winnerId === player.id"
-                            class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">
+                            class="text-xs bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">
                             勝者
                         </span>
                     </div>
 
                     <div class="text-right">
-                        <span class="text-xs text-slate-400 block">累積得分</span>
-                        <span class="font-mono font-bold text-base text-slate-200">
+                        <span class="text-xs text-sub block">累積得分</span>
+                        <span class="font-mono font-bold text-base text-main">
                             {{ gameStore.currentScores[player.id] || 0 }}
                         </span>
                     </div>
@@ -227,39 +228,40 @@ onMounted(() => {
                 <!-- 勝者顯示：預計贏得總點數 -->
                 <div v-if="winnerId === player.id"
                     class="pt-2 border-t border-indigo-500/30 flex items-center justify-between text-xs">
-                    <span class="text-indigo-300 font-medium">本局進帳 (全場失分和)</span>
-                    <span class="font-mono font-bold text-emerald-400 text-sm">+{{ calculatedWinnerGain }}</span>
+                    <span class="text-indigo-600 dark:text-indigo-300 font-medium">本局進帳 (全場失分和)</span>
+                    <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">+{{
+                        calculatedWinnerGain }}</span>
                 </div>
 
                 <!-- 輸家顯示：罰分/失分輸入 -->
-                <div v-else class="space-y-2 pt-1 border-t border-slate-700/50">
+                <div v-else class="space-y-2 pt-1 border-t header-border">
                     <div class="flex items-center justify-between gap-3">
-                        <label class="text-xs font-medium text-rose-400">本局失分</label>
+                        <label class="text-xs font-medium text-rose-500 dark:text-rose-400">本局失分</label>
                         <div class="relative flex items-center">
                             <span
-                                class="absolute left-3 text-rose-400 font-mono font-bold text-base pointer-events-none">-</span>
+                                class="absolute left-3 text-rose-500 dark:text-rose-400 font-mono font-bold text-base pointer-events-none">-</span>
                             <input type="text" inputmode="numeric" pattern="[0-9]*" :value="roundLoserPoints[player.id]"
                                 @input="handleInput(player.id, $event)"
-                                class="w-28 bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-right font-mono text-base text-rose-300 focus:outline-none focus:border-rose-500 min-h-[44px]" />
+                                class="w-28 input-bg border header-border rounded-xl pl-7 pr-3 py-2 text-right font-mono text-base text-rose-600 dark:text-rose-300 focus:outline-none focus:border-rose-500 min-h-[44px]" />
                         </div>
                     </div>
 
                     <!-- 微調按鈕 (加減輸家的失分) -->
                     <div class="grid grid-cols-4 gap-1.5 pt-1">
                         <button type="button" @click="adjustScore(player.id, -5)"
-                            class="bg-slate-900/90 hover:bg-slate-900 text-slate-300 border border-slate-700/80 rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
+                            class="btn-adjust text-main border header-border rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
                             -5
                         </button>
                         <button type="button" @click="adjustScore(player.id, -1)"
-                            class="bg-slate-900/90 hover:bg-slate-900 text-slate-300 border border-slate-700/80 rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
+                            class="btn-adjust text-main border header-border rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
                             -1
                         </button>
                         <button type="button" @click="adjustScore(player.id, 1)"
-                            class="bg-slate-900/90 hover:bg-slate-900 text-slate-300 border border-slate-700/80 rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
+                            class="btn-adjust text-main border header-border rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
                             +1
                         </button>
                         <button type="button" @click="adjustScore(player.id, 5)"
-                            class="bg-slate-900/90 hover:bg-slate-900 text-slate-300 border border-slate-700/80 rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
+                            class="btn-adjust text-main border header-border rounded-xl py-2.5 text-xs font-mono font-medium min-h-[48px] active:scale-95 transition-all">
                             +5
                         </button>
                     </div>
@@ -270,7 +272,7 @@ onMounted(() => {
         <!-- 結算按鈕 -->
         <div class="pt-3">
             <button type="button" @click="handleSubmitRound" :disabled="!winnerId || isSubmitting"
-                class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-semibold text-base py-4 rounded-xl shadow-lg shadow-indigo-950/50 min-h-[56px] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                class="w-full btn-primary disabled:opacity-50 text-white font-semibold text-base py-4 rounded-xl shadow-lg shadow-indigo-500/20 min-h-[56px] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -281,3 +283,67 @@ onMounted(() => {
         <HistoryModal v-if="isHistoryOpen" @close="isHistoryOpen = false" />
     </div>
 </template>
+
+<style scoped>
+/* 文字色彩雙模式支援 */
+.text-main {
+    color: var(--text-h);
+}
+
+.text-sub {
+    color: var(--text);
+}
+
+/* 邊框顏色適應 */
+.header-border {
+    border-color: var(--border);
+}
+
+/* 普通卡片背景 */
+.card-bg {
+    background-color: var(--bg-soft);
+}
+
+/* 勝者卡片高亮背景 */
+.card-winner {
+    background-color: rgba(99, 102, 241, 0.08);
+}
+
+/* 輸入框背景 */
+.input-bg {
+    background-color: var(--code-bg);
+}
+
+/* 圖示與頂部操作按鈕背景 */
+.btn-icon-bg {
+    background-color: var(--bg-soft);
+}
+
+.btn-icon-bg:hover {
+    filter: brightness(0.95);
+}
+
+/* 勝者選擇按鈕 (未選中狀態) */
+.radio-inactive {
+    border-color: var(--border);
+    background-color: var(--code-bg);
+}
+
+/* 失分微調按鈕 (-5, -1, +1, +5) */
+.btn-adjust {
+    background-color: var(--code-bg);
+}
+
+.btn-adjust:hover {
+    filter: brightness(0.95);
+}
+
+/* 主要操作按鈕 */
+.btn-primary {
+    background-color: var(--accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+</style>
