@@ -1,13 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-TW">
 
 <head>
   <meta charset="UTF-8" />
+  <script>
+    (function () {
+      try {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) { }
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="/cardgame_tracker/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>用同花把你打到叫媽</title>
-  <script type="module" crossorigin src="/cardgame_tracker/assets/index-vep059an.js"></script>
-  <link rel="stylesheet" crossorigin href="/cardgame_tracker/assets/index-CBzAeiPE.css">
+  <script type="module" crossorigin src="/cardgame_tracker/assets/index-DUDssqgI.js"></script>
+  <link rel="stylesheet" crossorigin href="/cardgame_tracker/assets/index-CkBsjltu.css">
 <link rel="manifest" href="/cardgame_tracker/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/cardgame_tracker/registerSW.js"></script></head>
 
 <body>
